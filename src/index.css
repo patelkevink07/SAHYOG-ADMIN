@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #FAFAF9;
+  --color-surface: #FFFFFF;
+  --color-ink: #14181F;
+  --color-muted: #6B7280;
+  --color-brand: #1F4D3D;
+  --color-brand-hover: #173C2F;
+  --color-accent: #C9A227;
+  --color-border: #E7E5E1;
+  --color-border-subtle: #F1F0EC;
+  --color-brand-tint: #BCEDD7;
+  --color-brand-tint-dark: #002116;
+  --color-accent-tint: #FDF8E8;
+  --color-accent-border: #F3E8B6;
+  --color-danger: #B91C1C;
+  --color-danger-bg: #FFDAD6;
+  --color-danger-text: #93000A;
+  --color-warning: #755B00;
+  --color-warning-bg: #FFE08E;
+
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --radius-panel: 10px;
+  --radius-control: 8px;
+}
+
+:root {
+  --canvas: #FAFAF9;
+  --surface: #FFFFFF;
+  --ink: #14181F;
+  --muted: #6B7280;
+  --brand: #1F4D3D;
+  --accent: #C9A227;
+  --border: #E7E5E1;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--canvas);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Force tabular-nums on numbers for alignment */
+.tabular-nums,
+[data-tabular="true"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Consistent focus ring states for accessibility across keyboard navigation */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid #1F4D3D;
+  outline-offset: 2px;
+}
