@@ -1,6 +1,0 @@
-{
-  "name": "Sahyog Admin",
-  "description": "Internal operations portal for Labour Cooperative Federation staff to verify workers, monitor workforce allocation, resolve disputes, process payouts, and review AI demand forecasting.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
