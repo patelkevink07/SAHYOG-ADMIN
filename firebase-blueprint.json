@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "Booking": {
+      "collection": "bookings",
+      "fields": {
+        "status": {
+          "type": "string",
+          "description": "Lifecycle state of the booking: requested, accepted, in_progress, completed, cancelled, rejected, flagged"
+        },
+        "refNumber": {
+          "type": "string",
+          "description": "Human-readable reference number (e.g., BK-84920)"
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Name of citizen booking the service"
+        },
+        "customerPhone": {
+          "type": "string",
+          "description": "Contact phone number of the customer"
+        },
+        "workerId": {
+          "type": "string",
+          "description": "Assigned artisan identifier"
+        },
+        "workerName": {
+          "type": "string",
+          "description": "Assigned artisan full name"
+        },
+        "trade": {
+          "type": "string",
+          "description": "Trade or craft category"
+        },
+        "zone": {
+          "type": "string",
+          "description": "Federation sector zone"
+        },
+        "address": {
+          "type": "string",
+          "description": "Service location address"
+        },
+        "category": {
+          "type": "string",
+          "description": "Specific trade service item or task"
+        },
+        "escrowAmount": {
+          "type": "number",
+          "description": "Total escrow locked amount in INR"
+        },
+        "coopFee": {
+          "type": "number",
+          "description": "Cooperative cess fee (5%)"
+        },
+        "otpVerified": {
+          "type": "boolean",
+          "description": "Whether on-site OTP was verified"
+        },
+        "scheduledTime": {
+          "type": "string",
+          "description": "Scheduled time description or timestamp"
+        },
+        "updatedAt": {
+          "type": "timestamp",
+          "description": "Timestamp when status or details were last modified"
+        }
+      }
+    }
+  }
+}

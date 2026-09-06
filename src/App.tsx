@@ -30,13 +30,13 @@ import {
 
 import {
   initialVerifications,
-  initialBookings,
   initialDisputes,
   initialPayouts,
   initialZones,
   initialForecastDays,
   defaultOfficer,
 } from './data/initialData';
+import { subscribeToBookings, updateBookingStatus } from './lib/bookingsService';
 
 export default function App() {
   // Authentication State with safe defaults
@@ -75,18 +75,21 @@ export default function App() {
     return initialVerifications;
   });
 
-  const [bookings, setBookings] = useState<BookingRecord[]>(() => {
-    try {
-      const saved = localStorage.getItem('sahyog_bookings');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+  // Bookings live-subscribed from Firestore 'bookings' collection
+  const [bookings, setBookings] = useState<BookingRecord[]>([]);
+
+  // Live-subscribe (onSnapshot) to the ENTIRE "bookings" collection, no filter
+  useEffect(() => {
+    const unsubscribe = subscribeToBookings(
+      (liveBookings) => {
+        setBookings(liveBookings);
+      },
+      (error) => {
+        console.error('Failed to subscribe to Firestore bookings:', error);
       }
-    } catch (e) {
-      // fallback
-    }
-    return initialBookings;
-  });
+    );
+    return () => unsubscribe();
+  }, []);
 
   const [disputes, setDisputes] = useState<DisputeRecord[]>(() => {
     try {
@@ -139,10 +142,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('sahyog_verifications', JSON.stringify(verifications));
   }, [verifications]);
-
-  useEffect(() => {
-    localStorage.setItem('sahyog_bookings', JSON.stringify(bookings));
-  }, [bookings]);
 
   useEffect(() => {
     localStorage.setItem('sahyog_disputes', JSON.stringify(disputes));
@@ -229,12 +228,19 @@ export default function App() {
     );
   };
 
-  // Action: Update Booking Status
-  const handleUpdateBookingStatus = (id: string, newStatus: BookingRecord['status']) => {
+  // Action: Update Booking Status with Firestore persistence (reverse mapping)
+  const handleUpdateBookingStatus = async (id: string, newStatus: BookingRecord['status']) => {
+    // Optimistic UI update
     setBookings((prev) =>
       prev.map((b) => (b.id === id ? { ...b, status: newStatus } : b))
     );
-    showToast(`Booking ${id} status updated to ${newStatus}`);
+    try {
+      await updateBookingStatus(id, newStatus);
+      showToast(`Booking ${id} status updated to ${newStatus}`);
+    } catch (error) {
+      console.error('Failed to update booking status in Firestore:', error);
+      showToast(`Failed to update booking ${id} in Firestore`);
+    }
   };
 
   // Action: Resolve Dispute
