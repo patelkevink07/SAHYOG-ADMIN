@@ -15,15 +15,18 @@ import {
   AlertCircle,
   RefreshCw,
 } from 'lucide-react';
-import { ZoneAllocation } from '../types';
+import { ZoneAllocation, WorkerVerification } from '../types';
+import { initialVerifications } from '../data/initialData';
 
 interface WorkforceMapViewProps {
   zones: ZoneAllocation[];
+  workers?: WorkerVerification[];
   onReallocate: (fromZoneId: string, toZoneId: string, count: number) => void;
 }
 
 export const WorkforceMapView: React.FC<WorkforceMapViewProps> = ({
   zones,
+  workers,
   onReallocate,
 }) => {
   const [selectedZoneId, setSelectedZoneId] = useState<string>(zones[0]?.id || 'zone-nw');
@@ -33,20 +36,44 @@ export const WorkforceMapView: React.FC<WorkforceMapViewProps> = ({
   const selectedZone = zones.find((z) => z.id === selectedZoneId) || zones[0];
 
   const handleQuickReallocation = () => {
-    // Reallocate 10 workers from North-West (surplus) to Okhla (deficit)
-    onReallocate('zone-nw', 'zone-se', 10);
-    setReallocateSuccess('Transferred 10 standby technicians to Okhla & Jasola Industrial sector.');
+    // Reallocate 1 worker from North-West to Okhla
+    onReallocate('zone-nw', 'zone-se', 1);
+    setReallocateSuccess('Transferred 1 standby artisan to Okhla & Jasola Industrial sector.');
     setTimeout(() => setReallocateSuccess(null), 4000);
   };
 
-  // Mock active workers in the selected zone
-  const zoneWorkers = [
-    { id: 'w1', name: 'Ramesh Chand Verma', trade: 'Plumbing', status: 'on_job', location: 'Sec 14, Block B', jobRef: 'BK-84918' },
-    { id: 'w2', name: 'Nadeem Khan', trade: 'HVAC & Refrigeration', status: 'travelling', location: 'Near Depot Kiosk 2', jobRef: 'BK-84915' },
-    { id: 'w3', name: 'Harish Chander', trade: 'Electrical & Wiring', status: 'on_job', location: 'Model Town III', jobRef: 'BK-84920' },
-    { id: 'w4', name: 'Urmila Devi', trade: 'Home Sanitization', status: 'standby', location: 'Cooperative Depot Standby Hub', jobRef: '-' },
-    { id: 'w5', name: 'Mukesh Pal', trade: 'Electrical & Wiring', status: 'standby', location: 'Sector Depot 4', jobRef: '-' },
-  ];
+  // Map the 10 real shared workers across operational sectors
+  const zoneWorkerMapping: Record<string, string[]> = {
+    'zone-nw': ['worker-1', 'worker-2', 'worker-9'], // Plumbing, Electrical, Gardening
+    'zone-cz': ['worker-3', 'worker-4', 'worker-10'], // Carpentry, Elder Care, General Repair
+    'zone-sw': ['worker-5', 'worker-6'], // Painting, Moving & Driving
+    'zone-se': ['worker-7', 'worker-8'], // Domestic Help, Appliance Repair
+  };
+
+  const zoneLocations: Record<string, string> = {
+    'worker-1': 'Sector 14, Block B',
+    'worker-2': 'Model Town III',
+    'worker-9': 'Rohini Depot Standby Hub',
+    'worker-3': 'Connaught Place Outer Circle',
+    'worker-4': 'Civil Lines Ward 2',
+    'worker-10': 'Karol Bagh Market Hub',
+    'worker-5': 'Dwarka Sector 10',
+    'worker-6': 'Dwarka Sector 21 Terminal',
+    'worker-7': 'Jasola Vihar Pocket 1',
+    'worker-8': 'Okhla Phase II Depot Hub',
+  };
+
+  const activeWorkerList = (workers && workers.length > 0 ? workers : initialVerifications);
+  const zoneWorkers = activeWorkerList
+    .filter((w) => (zoneWorkerMapping[selectedZoneId] || []).includes(w.id))
+    .map((w, idx) => ({
+      id: w.id,
+      name: w.name,
+      trade: w.trade,
+      status: idx === 0 ? ('on_job' as const) : idx === 1 ? ('travelling' as const) : ('standby' as const),
+      location: zoneLocations[w.id] || `${selectedZone.name} Hub`,
+      jobRef: idx === 0 ? `BK-${84910 + (parseInt(w.id.replace(/\D/g, '') || '1'))}` : '-',
+    }));
 
   return (
     <div className="space-y-6">
@@ -326,7 +353,7 @@ export const WorkforceMapView: React.FC<WorkforceMapViewProps> = ({
                 Active Artisans in {selectedZone.name}
               </h4>
               <span className="text-[11px] text-[#6B7280] tabular-nums">
-                5 displayed of {selectedZone.onDuty}
+                {zoneWorkers.length} displayed of {selectedZone.onDuty}
               </span>
             </div>
 

@@ -42,13 +42,7 @@ export const VerificationQueueView: React.FC<VerificationQueueViewProps> = ({
 
   const trades = [
     'all',
-    'Plumbing',
-    'Electrical & Wiring',
-    'Geriatric Aid & Care',
-    'Carpentry & Joinery',
-    'HVAC & Refrigeration',
-    'Home Sanitization',
-    'Masonry & Tiling',
+    ...Array.from(new Set(verifications.map((v) => v.trade).filter(Boolean))),
   ];
 
   const filtered = verifications.filter((worker) => {

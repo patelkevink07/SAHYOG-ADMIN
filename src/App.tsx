@@ -37,6 +37,7 @@ import {
   defaultOfficer,
 } from './data/initialData';
 import { subscribeToBookings, updateBookingStatus } from './lib/bookingsService';
+import { subscribeToWorkers, mapWorkerToVerification } from './lib/workersService';
 
 export default function App() {
   // Authentication State with safe defaults
@@ -74,6 +75,22 @@ export default function App() {
     }
     return initialVerifications;
   });
+
+  // Live-subscribe (onSnapshot) to the shared "workers" collection
+  useEffect(() => {
+    const unsubscribe = subscribeToWorkers(
+      (liveWorkers) => {
+        if (liveWorkers && liveWorkers.length > 0) {
+          const mapped = liveWorkers.map((w, idx) => mapWorkerToVerification(w, idx));
+          setVerifications(mapped);
+        }
+      },
+      (error) => {
+        console.error('Failed to subscribe to Firestore workers:', error);
+      }
+    );
+    return () => unsubscribe();
+  }, []);
 
   // Bookings live-subscribed from Firestore 'bookings' collection
   const [bookings, setBookings] = useState<BookingRecord[]>([]);
@@ -282,7 +299,7 @@ export default function App() {
   // Action: Broadcast Alert
   const handleBroadcastAlert = () => {
     setAlertBroadcasted(true);
-    showToast('Standby dispatch notification transmitted to 28 registered electricians in West Delhi.');
+    showToast('Standby dispatch notification transmitted to registered cooperative artisans in West Delhi.');
   };
 
   // Action: Officer Login / Logout
@@ -297,13 +314,18 @@ export default function App() {
     localStorage.removeItem('sahyog_officer');
   };
 
-  // Counts for Badges
+  // Counts for Badges and Metrics
   const pendingVerificationsCount = verifications.filter((v) => v.status === 'pending').length;
   const openDisputesCount = disputes.filter((d) => d.status === 'open').length;
   const pendingPayoutsCount = payouts.filter((p) => p.status === 'pending').length;
   const totalEscrowPending = payouts
     .filter((p) => p.status === 'pending')
     .reduce((sum, p) => sum + p.netPayable, 0);
+  const totalWorkersCount = verifications.length;
+  const totalBookingsCount = bookings.length;
+  const activeBookingsCount = bookings.filter(
+    (b) => b.status === 'active' || b.status === 'assigned'
+  ).length;
 
   // If officer not logged in, show Login Screen
   if (!officer) {
@@ -368,6 +390,9 @@ export default function App() {
                 forecastDays={forecastDays}
                 openDisputesCount={openDisputesCount}
                 totalEscrowPending={totalEscrowPending}
+                totalWorkersCount={totalWorkersCount}
+                totalBookingsCount={totalBookingsCount}
+                activeBookingsCount={activeBookingsCount}
                 onApproveWorker={handleApproveWorker}
                 onInspectWorker={(w) => setActiveInspectorWorker(w)}
                 onRejectWorker={(w) => handleRejectWorker(w)}
@@ -391,6 +416,7 @@ export default function App() {
             {currentSection === 'workforce-map' && (
               <WorkforceMapView
                 zones={zones}
+                workers={verifications}
                 onReallocate={handleReallocate}
               />
             )}

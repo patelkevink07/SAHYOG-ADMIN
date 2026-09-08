@@ -17,6 +17,7 @@ import {
   FileSpreadsheet,
 } from 'lucide-react';
 import { OfficerUser, NavigationSection } from '../types';
+import sahyogLogo from '../assets/sahyog-logo.png';
 
 export interface HeaderProps {
   currentOfficer?: OfficerUser | null;
@@ -117,16 +118,30 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="h-16 bg-[#FAFAF9] border-b border-[#E7E5E1] sticky top-0 z-20 px-6 flex items-center justify-between gap-4">
-      {/* Left: Sidebar toggle & Global Search */}
-      <div className="flex items-center gap-3 flex-1 max-w-lg">
+      {/* Left: Sidebar toggle, Brand Logo & Global Search */}
+      <div className="flex items-center gap-3 flex-1 max-w-xl">
         <button
           onClick={handleToggleSidebar}
-          className="p-1.5 text-[#6B7280] hover:text-[#14181F] hover:bg-white rounded-[8px] border border-transparent hover:border-[#E7E5E1] focus:outline-none focus:ring-2 focus:ring-[#1F4D3D] transition-colors"
+          className="p-1.5 text-[#6B7280] hover:text-[#14181F] hover:bg-white rounded-[8px] border border-transparent hover:border-[#E7E5E1] focus:outline-none focus:ring-2 focus:ring-[#1F4D3D] transition-colors flex-shrink-0"
           title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           aria-label="Toggle navigation sidebar"
         >
           <Menu className="w-5 h-5" />
         </button>
+
+        {/* Sahyog Brand Logo on Light Backing Panel */}
+        <div className="flex items-center gap-2 pr-2 border-r border-[#E7E5E1] flex-shrink-0">
+          <div className="h-8 px-2 py-0.5 bg-white border border-[#E7E5E1] rounded-[6px] shadow-xs flex items-center justify-center">
+            <img
+              src={sahyogLogo}
+              alt="Sahyog Logo"
+              className="h-6 w-auto max-w-[90px] object-contain"
+            />
+          </div>
+          <span className="hidden sm:inline-block text-[11px] font-bold text-[#1F4D3D] tracking-wider uppercase">
+            Admin
+          </span>
+        </div>
 
         <div className="relative w-full">
           <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#6B7280] pointer-events-none" />

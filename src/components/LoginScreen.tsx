@@ -15,6 +15,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { OfficerProfile } from '../types';
+import sahyogLogo from '../assets/sahyog-logo.png';
 
 interface LoginScreenProps {
   onLogin: (officer: OfficerProfile) => void;
@@ -66,10 +67,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     <div className="min-h-screen bg-[#FAFAF9] flex flex-col justify-center items-center px-4 py-12 text-[#14181F]">
       {/* Container card */}
       <div className="w-full max-w-[420px] bg-white border border-[#E7E5E1] rounded-[10px] p-8 shadow-xs space-y-6">
-        {/* Header Branding */}
-        <div className="space-y-2 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-[10px] bg-[#1F4D3D] text-white mx-auto shadow-xs">
-            <Building2 className="w-6 h-6" />
+        {/* Header Branding with Sahyog Logo */}
+        <div className="space-y-3 text-center flex flex-col items-center">
+          {/* Light surface container for black line-art logo */}
+          <div className="w-full max-w-[280px] bg-[#FAFAF9] border border-[#E7E5E1] rounded-[10px] p-3 shadow-xs flex items-center justify-center">
+            <img
+              src={sahyogLogo}
+              alt="Sahyog Logo"
+              className="w-full h-18 object-contain"
+            />
           </div>
           <div>
             <div className="flex items-center justify-center gap-1.5 mt-1">
@@ -77,10 +83,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                 SIH26089 · Internal Portal
               </span>
             </div>
-            <h1 className="text-[22px] font-bold text-[#14181F] tracking-tight">
-              Sahyog Admin
+            <h1 className="text-[18px] font-bold text-[#14181F] tracking-tight mt-1">
+              Federation Administration
             </h1>
-            <p className="text-[13px] text-[#6B7280] mt-0.5">
+            <p className="text-[13px] text-[#6B7280] mt-0.5 max-w-[340px] mx-auto">
               Labour Cooperative Federation Operations & Statutory Verification Portal
             </p>
           </div>

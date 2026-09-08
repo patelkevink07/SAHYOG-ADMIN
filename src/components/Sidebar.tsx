@@ -20,6 +20,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { NavigationSection, OfficerUser } from '../types';
+import sahyogLogo from '../assets/sahyog-logo.png';
 
 export interface SidebarProps {
   currentSection: NavigationSection;
@@ -121,41 +122,39 @@ export const Sidebar: React.FC<SidebarProps> = ({
     >
       {/* Top Header & Brand Identity */}
       <div className="flex flex-col">
-        <div className="p-4 pb-3 border-b border-[#E7E5E1]">
-          <div className="flex items-center gap-3 overflow-hidden">
-            {/* Cooperative Emblem */}
-            <div className="h-10 w-10 min-w-[40px] rounded-[8px] bg-white border border-[#E7E5E1] p-1 flex items-center justify-center flex-shrink-0 shadow-xs">
-              <svg viewBox="0 0 100 100" className="w-full h-full" fill="none">
-                <circle cx="50" cy="50" r="46" stroke="#1F4D3D" strokeWidth="4" />
-                <path
-                  d="M30 62C36 48 44 42 56 46C64 49 68 44 72 38"
-                  stroke="#1F4D3D"
-                  strokeWidth="4"
-                  strokeLinecap="round"
+        <div className="p-3.5 pb-3 border-b border-[#E7E5E1]">
+          {!isCollapsed ? (
+            <div className="flex flex-col gap-2">
+              <div className="bg-white border border-[#E7E5E1] rounded-[8px] p-2 flex items-center justify-center shadow-xs">
+                <img
+                  src={sahyogLogo}
+                  alt="Sahyog"
+                  className="h-8 w-auto max-w-full object-contain"
                 />
-                <circle cx="50" cy="30" r="8" fill="#C9A227" />
-                <path
-                  d="M26 65C38 74 62 74 74 65"
-                  stroke="#C9A227"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                />
-                <circle cx="34" cy="50" r="4" fill="#1F4D3D" />
-                <circle cx="66" cy="50" r="4" fill="#1F4D3D" />
-              </svg>
-            </div>
-
-            {!isCollapsed && (
-              <div className="flex flex-col truncate">
-                <h1 className="text-[14px] font-bold leading-tight tracking-tight text-[#14181F] truncate">
-                  Delhi Shramik Sahakari
-                </h1>
-                <p className="text-[11px] font-medium text-[#6B7280] tracking-tight mt-0.5 truncate">
-                  Officer Console · NCCT Reg. F-8842
-                </p>
               </div>
-            )}
-          </div>
+              <div className="flex items-center justify-between px-0.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#1F4D3D]">
+                  Admin Console
+                </span>
+                <span className="text-[10px] text-[#6B7280] font-mono">
+                  NCCT Reg. F-8842
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <div
+                className="h-10 w-10 bg-white border border-[#E7E5E1] rounded-[8px] p-1 flex items-center justify-center shadow-xs"
+                title="Sahyog Admin"
+              >
+                <img
+                  src={sahyogLogo}
+                  alt="Sahyog"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Navigation Items */}

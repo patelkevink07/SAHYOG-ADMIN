@@ -65,7 +65,7 @@ export const AiForecastAnalyticsView: React.FC<AiForecastAnalyticsViewProps> = (
           {alertBroadcasted ? (
             <>
               <Check className="w-4 h-4" />
-              <span>Standby Alert Broadcasted to 28 Artisans</span>
+              <span>Standby Alert Broadcasted to Cooperative Artisans</span>
             </>
           ) : (
             <>
@@ -254,7 +254,7 @@ export const AiForecastAnalyticsView: React.FC<AiForecastAnalyticsViewProps> = (
             </div>
             <div>
               <span className="text-[11px] text-[#6B7280]">Recommended Pre-Alert</span>
-              <div className="font-bold text-[#1F4D3D] mt-0.5 tabular-nums">28 Certified Guilds</div>
+              <div className="font-bold text-[#1F4D3D] mt-0.5 tabular-nums">Cooperative Artisans</div>
             </div>
           </div>
         </div>
@@ -288,7 +288,7 @@ export const AiForecastAnalyticsView: React.FC<AiForecastAnalyticsViewProps> = (
                 Recommended Staff Actions:
               </span>
               <ul className="list-disc pl-4 space-y-1 text-[#414944]">
-                <li>Broadcast voluntary standby shift notifications to 28 certified electricians.</li>
+                <li>Broadcast voluntary standby shift notifications to certified cooperative electricians.</li>
                 <li>Stock 40 additional dual-run capacitors at Cooperative Depot Kiosks 1 & 4.</li>
                 <li>Activate 15-minute dispatch priority for households with registered senior citizens.</li>
               </ul>

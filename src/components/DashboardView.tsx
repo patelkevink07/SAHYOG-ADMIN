@@ -29,6 +29,9 @@ interface DashboardViewProps {
   forecastDays: ForecastDay[];
   openDisputesCount: number;
   totalEscrowPending: number;
+  totalWorkersCount?: number;
+  totalBookingsCount?: number;
+  activeBookingsCount?: number;
   onApproveWorker: (worker: WorkerVerification) => void;
   onInspectWorker: (worker: WorkerVerification) => void;
   onRejectWorker: (worker: WorkerVerification) => void;
@@ -43,6 +46,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   forecastDays,
   openDisputesCount,
   totalEscrowPending,
+  totalWorkersCount = 10,
+  totalBookingsCount = 8,
+  activeBookingsCount = 2,
   onApproveWorker,
   onInspectWorker,
   onRejectWorker,
@@ -87,32 +93,35 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* 1. Key Stat Summary Blocks */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        {/* Stat 1: Active Workers */}
+        {/* Stat 1: Total Workers (Live from shared Firestore collection) */}
         <div className="bg-white border border-[#E7E5E1] rounded-[10px] p-4 flex flex-col justify-between">
-          <span className="text-[12px] font-medium text-[#6B7280]">Active Workers</span>
+          <span className="text-[12px] font-medium text-[#6B7280]">Total Co-op Workers</span>
           <div className="mt-2 flex items-baseline justify-between">
             <span className="text-[24px] font-bold tabular-nums tracking-tight text-[#14181F]">
-              1,482
+              {totalWorkersCount}
             </span>
             <span className="text-[11px] font-medium text-[#1F4D3D] tabular-nums bg-[#BCEDD7]/40 px-1.5 py-0.5 rounded">
-              842 on job
+              {totalWorkersCount} active
             </span>
           </div>
-          <span className="text-[11px] text-[#6B7280] mt-1">63.7% allocation efficiency</span>
+          <span className="text-[11px] text-[#6B7280] mt-1">10 service categories · Live Sync</span>
         </div>
 
-        {/* Stat 2: Today's Bookings */}
-        <div className="bg-white border border-[#E7E5E1] rounded-[10px] p-4 flex flex-col justify-between">
-          <span className="text-[12px] font-medium text-[#6B7280]">Today's Bookings</span>
+        {/* Stat 2: Today's Bookings (Live from shared Firestore collection) */}
+        <div
+          onClick={() => onNavigate('bookings')}
+          className="bg-white border border-[#E7E5E1] rounded-[10px] p-4 flex flex-col justify-between cursor-pointer hover:border-[#1F4D3D] transition"
+        >
+          <span className="text-[12px] font-medium text-[#6B7280]">Total Bookings</span>
           <div className="mt-2 flex items-baseline justify-between">
             <span className="text-[24px] font-bold tabular-nums tracking-tight text-[#14181F]">
-              328
+              {totalBookingsCount}
             </span>
             <span className="text-[11px] font-medium text-[#755B00] tabular-nums bg-[#FFE08E]/40 px-1.5 py-0.5 rounded">
-              42 active
+              {activeBookingsCount} active
             </span>
           </div>
-          <span className="text-[11px] text-[#6B7280] mt-1">98.2% on-time dispatch</span>
+          <span className="text-[11px] text-[#6B7280] mt-1">Live from shared Firestore</span>
         </div>
 
         {/* Stat 3: Pending Verifications */}
@@ -458,9 +467,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               {/* Plain Language Briefing Note */}
               <p className="mt-3 text-[12px] text-[#414944] leading-relaxed">
-                <strong className="text-[#14181F]">Briefing:</strong> Expected surge in electrical & AC
-                cooling service requests (+34%) in West Delhi sectors over the next 72 hours due to
-                forecasted heatwave. Recommend pre-notifying 28 off-shift cooperative technicians.
+                <strong className="text-[#14181F]">Briefing:</strong> Expected surge in electrical & cooling
+                service requests (+34%) in West Delhi sectors over the next 72 hours due to
+                forecasted heatwave. Recommend pre-notifying off-shift cooperative artisans.
               </p>
             </div>
 
@@ -478,12 +487,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 {alertBroadcasted ? (
                   <>
                     <Check className="w-4 h-4" />
-                    <span>Broadcast Sent to 28 Technicians</span>
+                    <span>Broadcast Sent to 10 Cooperative Artisans</span>
                   </>
                 ) : (
                   <>
                     <Send className="w-3.5 h-3.5" />
-                    <span>Broadcast Alert to Certified Electricians</span>
+                    <span>Broadcast Alert to Cooperative Artisans</span>
                   </>
                 )}
               </button>
