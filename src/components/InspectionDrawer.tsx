@@ -84,12 +84,26 @@ export const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
                 {worker.regId}
               </span>
             </div>
-            <h4 className="text-[16px] font-bold text-[#14181F] mt-1">
-              {worker.name}
-            </h4>
-            <p className="text-[12px] text-[#6B7280] mt-0.5">
-              {worker.trade} · {worker.branch}
-            </p>
+            
+            <div className="flex items-center gap-3 mt-2">
+              <div className="w-12 h-12 rounded-full bg-[#F1F3FE] border border-[#E7E5E1] flex-shrink-0 flex items-center justify-center overflow-hidden">
+                {worker.photoUrl ? (
+                  <img src={worker.photoUrl} alt={worker.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-[16px] font-bold text-[#1F4D3D]">
+                    {worker.name.charAt(0)}
+                  </span>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-[16px] font-bold text-[#14181F] leading-tight truncate">
+                  {worker.name}
+                </h4>
+                <p className="text-[12px] text-[#6B7280] mt-0.5 truncate">
+                  {worker.trade} · {worker.branch}
+                </p>
+              </div>
+            </div>
 
             <div className="mt-2.5 pt-2 border-t border-[#E7E5E1] grid grid-cols-2 gap-2 text-[11px] text-[#6B7280]">
               <div className="flex items-center gap-1.5">

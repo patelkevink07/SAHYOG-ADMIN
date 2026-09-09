@@ -226,20 +226,33 @@ export const VerificationQueueView: React.FC<VerificationQueueViewProps> = ({
 
                       {/* Applicant & Trade */}
                       <td className="py-3 px-3">
-                        <div className="font-semibold text-[#14181F] flex items-center gap-1.5">
-                          <span>{worker.name}</span>
-                          {isApproved && (
-                            <span className="text-[#C9A227] font-bold text-[13px]" title="Approved Guild Worker">
-                              ✓
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-[#6B7280] flex items-center gap-1.5 mt-0.5">
-                          <span className="font-medium text-[#414944]">{worker.trade}</span>
-                          <span>·</span>
-                          <span className="font-mono text-[10px] bg-[#F1F1EF] px-1 py-0.2 rounded">
-                            {worker.regId}
-                          </span>
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-[#F1F3FE] border border-[#E7E5E1] flex-shrink-0 flex items-center justify-center overflow-hidden">
+                            {worker.photoUrl ? (
+                              <img src={worker.photoUrl} alt={worker.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-[12px] font-bold text-[#1F4D3D]">
+                                {worker.name.charAt(0)}
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-[#14181F] flex items-center gap-1.5">
+                              <span>{worker.name}</span>
+                              {isApproved && (
+                                <span className="text-[#C9A227] font-bold text-[13px]" title="Approved Guild Worker">
+                                  ✓
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-[#6B7280] flex items-center gap-1.5 mt-0.5">
+                              <span className="font-medium text-[#414944]">{worker.trade}</span>
+                              <span>·</span>
+                              <span className="font-mono text-[10px] bg-[#F1F1EF] px-1 py-0.2 rounded">
+                                {worker.regId}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </td>
 

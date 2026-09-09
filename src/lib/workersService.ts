@@ -31,6 +31,7 @@ export interface FirestoreWorker {
   toolsEquipped?: string[];
   subservices?: string[];
   memberSinceYear?: number;
+  isOnline?: boolean;
   status?: 'pending' | 'approved' | 'rejected' | 'held';
   reviews?: Array<{
     id: string;
@@ -40,6 +41,63 @@ export interface FirestoreWorker {
     date: string;
     serviceRendered: string;
   }>;
+}
+
+export const DEFAULT_TRADE_IMAGES: Record<string, string> = {
+  'plumbing': '/worker-plumbing.jpg',
+  'electrical': '/worker-electrical.jpg',
+  'carpentry': '/worker-carpentry.jpg',
+  'elder care': '/worker-elder-care.jpg',
+  'elder-care': '/worker-elder-care.jpg',
+  'painting': '/worker-painting.jpg',
+  'moving & driving': '/worker-moving.jpg',
+  'moving': '/worker-moving.jpg',
+  'domestic help': '/worker-domestic-help.jpg',
+  'domestic-help': '/worker-domestic-help.jpg',
+  'appliance repair': '/worker-appliance-repair.jpg',
+  'appliance-repair': '/worker-appliance-repair.jpg',
+  'gardening': '/worker-gardening.jpg',
+  'general repair': '/worker-general-repair.jpg',
+  'general-repair': '/worker-general-repair.jpg',
+  'general service': '/worker-general-repair.jpg',
+};
+
+export const DEFAULT_WORKER_ID_IMAGES: Record<string, string> = {
+  'worker-1': '/worker-plumbing.jpg',
+  'worker-2': '/worker-electrical.jpg',
+  'worker-3': '/worker-carpentry.jpg',
+  'worker-4': '/worker-elder-care.jpg',
+  'worker-5': '/worker-painting.jpg',
+  'worker-6': '/worker-moving.jpg',
+  'worker-7': '/worker-domestic-help.jpg',
+  'worker-8': '/worker-appliance-repair.jpg',
+  'worker-9': '/worker-gardening.jpg',
+  'worker-10': '/worker-general-repair.jpg',
+  'worker-appliance-repair': '/worker-appliance-repair.jpg',
+  'worker-carpentry': '/worker-carpentry.jpg',
+  'worker-domestic-help': '/worker-domestic-help.jpg',
+  'worker-elder-care': '/worker-elder-care.jpg',
+  'worker-electrical': '/worker-electrical.jpg',
+  'worker-gardening': '/worker-gardening.jpg',
+  'worker-general-repair': '/worker-general-repair.jpg',
+  'worker-moving': '/worker-moving.jpg',
+  'worker-painting': '/worker-painting.jpg',
+  'worker-plumbing': '/worker-plumbing.jpg',
+};
+
+export function getWorkerPhotoUrl(id: string, tradeName?: string, currentPhotoUrl?: string): string {
+  if (currentPhotoUrl && currentPhotoUrl.trim().length > 0) {
+    return currentPhotoUrl.startsWith('/') ? currentPhotoUrl : `/${currentPhotoUrl}`;
+  }
+  const idKey = id.toLowerCase();
+  if (DEFAULT_WORKER_ID_IMAGES[idKey]) {
+    return DEFAULT_WORKER_ID_IMAGES[idKey];
+  }
+  const tradeKey = (tradeName || '').toLowerCase().trim();
+  if (DEFAULT_TRADE_IMAGES[tradeKey]) {
+    return DEFAULT_TRADE_IMAGES[tradeKey];
+  }
+  return '/worker-general-repair.jpg';
 }
 
 /**
@@ -65,6 +123,7 @@ export function mapWorkerToVerification(
 
   const phoneSuffix = String(1000 + (index * 137) % 9000).padStart(4, '0');
   const phone = `+91 98101 ${phoneSuffix}`;
+  const photoUrl = getWorkerPhotoUrl(w.id, w.primaryServiceName, w.photoUrl);
 
   return {
     id: w.id,
@@ -88,6 +147,7 @@ export function mapWorkerToVerification(
     submissionDate: `Member since ${memberSince} · Active Co-op Guild`,
     status,
     inspectionNotes: w.summary || `${w.primaryServiceName} specialist with verified background and active insurance.`,
+    photoUrl,
   };
 }
 
@@ -106,11 +166,14 @@ export function subscribeToWorkers(
     (snapshot: QuerySnapshot<DocumentData>) => {
       const records: FirestoreWorker[] = snapshot.docs.map((docSnap) => {
         const data = docSnap.data();
+        const primaryServiceName = data.primaryServiceName || 'General Service';
+        const photoUrl = getWorkerPhotoUrl(docSnap.id, primaryServiceName, data.photoUrl);
+
         return {
           id: docSnap.id,
           name: data.name || 'Artisan',
           primaryServiceId: data.primaryServiceId || 'general',
-          primaryServiceName: data.primaryServiceName || 'General Service',
+          primaryServiceName,
           federationId: data.federationId,
           federationName: data.federationName || 'Delhi Shramik Federation',
           registrationNumber: data.registrationNumber,
@@ -121,12 +184,13 @@ export function subscribeToWorkers(
           hourlyRate: typeof data.hourlyRate === 'number' ? data.hourlyRate : 350,
           reviewCount: typeof data.reviewCount === 'number' ? data.reviewCount : 50,
           emergencyAvailable: Boolean(data.emergencyAvailable),
-          photoUrl: data.photoUrl,
+          photoUrl,
           summary: data.summary,
           certifications: Array.isArray(data.certifications) ? data.certifications : [],
           toolsEquipped: Array.isArray(data.toolsEquipped) ? data.toolsEquipped : [],
           subservices: Array.isArray(data.subservices) ? data.subservices : [],
           memberSinceYear: typeof data.memberSinceYear === 'number' ? data.memberSinceYear : 2020,
+          isOnline: typeof data.isOnline === 'boolean' ? data.isOnline : undefined,
           status: data.status,
           reviews: Array.isArray(data.reviews) ? data.reviews : [],
         };

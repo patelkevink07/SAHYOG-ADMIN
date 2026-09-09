@@ -7,6 +7,7 @@
 export type NavigationSection =
   | 'dashboard'
   | 'verification'
+  | 'workers'
   | 'bookings'
   | 'disputes'
   | 'payouts'
@@ -48,6 +49,7 @@ export interface WorkerVerification {
   status: 'pending' | 'approved' | 'rejected' | 'held';
   rejectionReason?: string;
   inspectionNotes?: string;
+  photoUrl?: string;
 }
 
 export interface BookingRecord {

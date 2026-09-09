@@ -9,6 +9,7 @@ import { Sidebar } from './components/Sidebar';
 import { DashboardView } from './components/DashboardView';
 import { VerificationQueueView } from './components/VerificationQueueView';
 import { BookingsView } from './components/BookingsView';
+import { WorkersDirectoryView } from './components/WorkersDirectoryView';
 import { DisputesView } from './components/DisputesView';
 import { PayoutsView } from './components/PayoutsView';
 import { AiForecastAnalyticsView } from './components/AiForecastAnalyticsView';
@@ -33,6 +34,8 @@ import {
   initialForecastDays,
   defaultOfficer,
 } from './data/initialData';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from './lib/firebase';
 import { subscribeToBookings, updateBookingStatus } from './lib/bookingsService';
 import { subscribeToWorkers, mapWorkerToVerification } from './lib/workersService';
 
@@ -71,6 +74,17 @@ export default function App() {
     }
     return initialVerifications;
   });
+
+  const [liveWorkersCount, setLiveWorkersCount] = useState<number>(0);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'workers'), (snapshot) => {
+      setLiveWorkersCount(snapshot.size);
+    }, (error) => {
+      console.error('Failed to subscribe to workers collection size:', error);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Live-subscribe (onSnapshot) to the shared "workers" collection
   useEffect(() => {
@@ -268,7 +282,7 @@ export default function App() {
   const totalEscrowPending = payouts
     .filter((p) => p.status === 'pending')
     .reduce((sum, p) => sum + p.netPayable, 0);
-  const totalWorkersCount = verifications.length;
+  const totalWorkersCount = liveWorkersCount;
   const totalBookingsCount = bookings.length;
   const activeBookingsCount = bookings.filter(
     (b) => b.status === 'active' || b.status === 'assigned'
@@ -343,6 +357,10 @@ export default function App() {
                 onBatchApproveClear={handleBatchApproveClear}
                 onResetVerifications={handleResetVerifications}
               />
+            )}
+
+            {currentSection === 'workers' && (
+              <WorkersDirectoryView />
             )}
 
             {currentSection === 'bookings' && (

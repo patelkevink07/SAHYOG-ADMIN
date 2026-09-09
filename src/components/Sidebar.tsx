@@ -14,6 +14,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Users,
 } from 'lucide-react';
 import { NavigationSection, OfficerUser } from '../types';
 import sahyogLogo from '../assets/sahyog-logo.png';
@@ -70,6 +71,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: ShieldCheck,
       count: pendingVerificationsCount,
       countClass: 'bg-[#E5E8F2] text-[#14181F]',
+    },
+    {
+      id: 'workers' as NavigationSection,
+      label: 'Workers',
+      icon: Users,
     },
     {
       id: 'bookings' as NavigationSection,
