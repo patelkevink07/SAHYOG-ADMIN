@@ -42,6 +42,10 @@ import {
   mapWorkerToVerification,
   updateWorkerStatusInFirestore,
 } from './lib/workersService';
+import {
+  subscribeToDisputes,
+  resolveDisputeInFirestore,
+} from './lib/disputesService';
 
 export default function App() {
   // Authentication State with safe defaults
@@ -146,18 +150,20 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  const [disputes, setDisputes] = useState<DisputeRecord[]>(() => {
-    try {
-      const saved = localStorage.getItem('sahyog_disputes');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+  // Disputes live-subscribed from Firestore 'disputes' collection
+  const [disputes, setDisputes] = useState<DisputeRecord[]>([]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToDisputes(
+      (liveDisputes) => {
+        setDisputes(liveDisputes);
+      },
+      (error) => {
+        console.error('Failed to subscribe to Firestore disputes:', error);
       }
-    } catch (e) {
-      // fallback
-    }
-    return initialDisputes;
-  });
+    );
+    return () => unsubscribe();
+  }, []);
 
   const [payouts, setPayouts] = useState<PayoutRecord[]>(() => {
     try {
@@ -184,10 +190,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('sahyog_verifications', JSON.stringify(verifications));
   }, [verifications]);
-
-  useEffect(() => {
-    localStorage.setItem('sahyog_disputes', JSON.stringify(disputes));
-  }, [disputes]);
 
   useEffect(() => {
     localStorage.setItem('sahyog_payouts', JSON.stringify(payouts));
@@ -274,8 +276,17 @@ export default function App() {
     }
   };
 
-  // Action: Resolve Dispute
-  const handleResolveDispute = (disputeId: string, decision: string, notes: string) => {
+  // Action: Resolve Dispute with Firestore persistence
+  const handleResolveDispute = async (
+    disputeId: string,
+    decision: string,
+    notes: string
+  ) => {
+    const targetDispute = disputes.find((d) => d.id === disputeId);
+    const existingMessages = targetDispute?.messages || [];
+    const officerName = officer?.name || 'Co-op Registrar Officer';
+
+    // Optimistic UI update
     setDisputes((prev) =>
       prev.map((d) =>
         d.id === disputeId
@@ -283,11 +294,28 @@ export default function App() {
               ...d,
               status: 'resolved' as const,
               resolutionDecision: decision,
+              resolvedAt: new Date().toISOString(),
+              resolvedBy: officerName,
+              hasWorkerUnreadUpdate: true,
+              hasCustomerUnreadUpdate: true,
             }
           : d
       )
     );
     showToast(`Resolved dispute: ${decision}`);
+
+    try {
+      await resolveDisputeInFirestore(
+        disputeId,
+        decision,
+        notes,
+        officerName,
+        existingMessages
+      );
+    } catch (error) {
+      console.error('Failed to resolve dispute in Firestore:', error);
+      showToast('Error persisting dispute resolution to Firestore');
+    }
   };
 
   // Action: Process Single Payout

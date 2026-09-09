@@ -95,49 +95,89 @@ export const DisputeResolutionModal: React.FC<DisputeResolutionModalProps> = ({
             </div>
           </div>
 
-          {/* Statements Side-by-Side */}
+          {/* Dispute Communication Thread (Messages) */}
           <div className="space-y-3">
-            {/* Customer Statement */}
-            <div className="p-3 bg-white border border-[#E7E5E1] rounded-[8px] space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase text-[#6B7280] flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                  Customer Statement ({dispute.complainantName})
-                </span>
-                <span className="text-[10px] bg-[#F1F1EF] px-1.5 py-0.5 rounded text-[#6B7280]">
-                  Complainant
-                </span>
-              </div>
-              <p className="text-[12px] text-[#14181F] leading-relaxed">
-                "{dispute.customerStatement}"
-              </p>
-            </div>
-
-            {/* Worker Statement */}
-            <div className="p-3 bg-white border border-[#E7E5E1] rounded-[8px] space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase text-[#6B7280] flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#1F4D3D]"></span>
-                  Artisan Counter-Statement ({dispute.respondentName})
-                </span>
-                <span className="text-[10px] bg-[#BCEDD7]/40 px-1.5 py-0.5 rounded text-[#002116] font-medium">
-                  Guild Member
-                </span>
-              </div>
-              <p className="text-[12px] text-[#14181F] leading-relaxed">
-                "{dispute.workerStatement}"
-              </p>
-            </div>
-
-            {/* Evidence & Field Officer Notes */}
-            <div className="p-3 bg-[#FAFAF9] border border-[#E7E5E1] rounded-[8px] space-y-1">
-              <span className="text-[11px] font-bold uppercase text-[#6B7280]">
-                Field Dispatch Telemetry & Evidence
+            <div className="flex items-center justify-between border-b border-[#E7E5E1] pb-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">
+                Grievance Thread & Conversation ({dispute.messages?.length || 0} messages)
               </span>
-              <p className="text-[12px] text-[#414944] leading-relaxed">
-                {dispute.evidenceNotes}
-              </p>
+              <span className="text-[10px] text-[#6B7280] font-mono">Live Firestore Thread</span>
             </div>
+
+            {(!dispute.messages || dispute.messages.length === 0) ? (
+              <div className="p-3 bg-[#FAFAF9] border border-[#E7E5E1] rounded-[8px] text-[12px] text-[#6B7280] text-center">
+                No conversation messages recorded for this dispute.
+              </div>
+            ) : (
+              <div className="space-y-2.5 max-h-[300px] overflow-y-auto pr-1">
+                {dispute.messages.map((msg, index) => {
+                  const isCustomer = msg.senderRole === 'customer';
+                  const isWorker = msg.senderRole === 'worker';
+                  const isAdmin = msg.senderRole === 'admin';
+
+                  return (
+                    <div
+                      key={msg.id || index}
+                      className={`p-3 rounded-[8px] border text-[12px] space-y-1 ${
+                        isAdmin
+                          ? 'bg-[#F1F3FE] border-[#1F4D3D]/30 text-[#1F4D3D]'
+                          : isCustomer
+                          ? 'bg-white border-[#E7E5E1] text-[#14181F]'
+                          : 'bg-[#FAFAF9] border-[#E7E5E1] text-[#14181F]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 font-semibold">
+                          <span
+                            className={`w-2 h-2 rounded-full ${
+                              isCustomer
+                                ? 'bg-blue-500'
+                                : isWorker
+                                ? 'bg-[#1F4D3D]'
+                                : 'bg-amber-600'
+                            }`}
+                          />
+                          <span className="text-[#14181F] font-bold text-[12px]">
+                            {msg.senderName}
+                          </span>
+                          <span
+                            className={`text-[10px] px-1.5 py-0.2 rounded font-medium ${
+                              isCustomer
+                                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                : isWorker
+                                ? 'bg-[#BCEDD7]/40 text-[#002116] border border-[#1F4D3D]/20'
+                                : 'bg-amber-50 text-amber-800 border border-amber-200'
+                            }`}
+                          >
+                            {isCustomer
+                              ? 'Complainant (Customer)'
+                              : isWorker
+                              ? 'Respondent (Artisan)'
+                              : 'Officer (Admin)'}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-[#6B7280] font-mono">{msg.timestamp}</span>
+                      </div>
+                      <p className="text-[12px] leading-relaxed text-[#14181F] whitespace-pre-wrap pt-0.5">
+                        "{msg.message}"
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Evidence & Field Telemetry Notes if available */}
+            {dispute.evidenceNotes && (
+              <div className="p-3 bg-[#FAFAF9] border border-[#E7E5E1] rounded-[8px] space-y-1">
+                <span className="text-[11px] font-bold uppercase text-[#6B7280]">
+                  Field Dispatch Telemetry & Evidence
+                </span>
+                <p className="text-[12px] text-[#414944] leading-relaxed">
+                  {dispute.evidenceNotes}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Resolution Options with Exact Verbs */}

@@ -361,6 +361,7 @@ export const INITIAL_DISPUTES: DisputeRecord[] = [
     id: 'disp-1',
     refNumber: 'DISP-402',
     bookingRef: 'BK-84892',
+    bookingId: 'BK-84892',
     lodgedBy: 'customer',
     complainantName: 'Dr. Vivek Saxena',
     respondentName: 'Sunita Rajesh Shinde (worker-2)',
@@ -371,6 +372,22 @@ export const INITIAL_DISPUTES: DisputeRecord[] = [
     severity: 'medium',
     lodgedDate: '18-APR-2025 · 13:10 IST',
     status: 'open',
+    messages: [
+      {
+        id: 'disp-1-m1',
+        senderRole: 'customer',
+        senderName: 'Dr. Vivek Saxena',
+        message: 'The artisan quoted ₹1,150 inclusive of conduit wire on arrival, but subsequently billed an additional ₹650 for branded copper coil without showing the printed tax receipt.',
+        timestamp: '18-APR-2025 · 13:10 IST',
+      },
+      {
+        id: 'disp-1-m2',
+        senderRole: 'worker',
+        senderName: 'Sunita Rajesh Shinde',
+        message: 'The house meter earthing line had corroded completely down to the ground pit. Additional 15 meters of 4mm Finolex wire was required to prevent shock hazards. Bill was handed to guard.',
+        timestamp: '18-APR-2025 · 13:25 IST',
+      },
+    ],
     customerStatement:
       'The artisan quoted ₹1,150 inclusive of conduit wire on arrival, but subsequently billed an additional ₹650 for branded copper coil without showing the printed tax receipt.',
     workerStatement:
@@ -382,6 +399,7 @@ export const INITIAL_DISPUTES: DisputeRecord[] = [
     id: 'disp-2',
     refNumber: 'DISP-398',
     bookingRef: 'BK-84720',
+    bookingId: 'BK-84720',
     lodgedBy: 'customer',
     complainantName: 'Sunil Manchanda',
     respondentName: 'Ramesh Chand Verma (worker-1)',
@@ -392,6 +410,22 @@ export const INITIAL_DISPUTES: DisputeRecord[] = [
     severity: 'high',
     lodgedDate: '18-APR-2025 · 11:40 IST',
     status: 'open',
+    messages: [
+      {
+        id: 'disp-2-m1',
+        senderRole: 'customer',
+        senderName: 'Sunil Manchanda',
+        message: 'While tightening the concealed divertor cartridge, the technician chipped the Italian marble tile faceplate. Demanding ₹800 deduction for tile replacement.',
+        timestamp: '18-APR-2025 · 11:40 IST',
+      },
+      {
+        id: 'disp-2-m2',
+        senderRole: 'worker',
+        senderName: 'Ramesh Chand Verma',
+        message: 'The existing cement mortar behind the tile was hollow. The hairline fracture was already present before opening the flange. I have cooperative insurance backing.',
+        timestamp: '18-APR-2025 · 12:05 IST',
+      },
+    ],
     customerStatement:
       'While tightening the concealed divertor cartridge, the technician chipped the Italian marble tile faceplate. Demanding ₹800 deduction for tile replacement.',
     workerStatement:
@@ -403,6 +437,7 @@ export const INITIAL_DISPUTES: DisputeRecord[] = [
     id: 'disp-3',
     refNumber: 'DISP-391',
     bookingRef: 'BK-84615',
+    bookingId: 'BK-84615',
     lodgedBy: 'worker',
     complainantName: 'Harpreet Singh Dhillon (worker-3)',
     respondentName: 'Gaurav Bhasin (Customer)',
@@ -413,6 +448,22 @@ export const INITIAL_DISPUTES: DisputeRecord[] = [
     severity: 'medium',
     lodgedDate: '17-APR-2025 · 17:50 IST',
     status: 'under_mediation',
+    messages: [
+      {
+        id: 'disp-3-m1',
+        senderRole: 'worker',
+        senderName: 'Harpreet Singh Dhillon',
+        message: 'Initial booking was exclusively for 2 cabinet hinges. Spent 2 extra hours modifying interior shelves. Customer withheld OTP completion code.',
+        timestamp: '17-APR-2025 · 17:50 IST',
+      },
+      {
+        id: 'disp-3-m2',
+        senderRole: 'customer',
+        senderName: 'Gaurav Bhasin',
+        message: 'I believed basic carpentry booking covers general wood adjustment. The artisan refused to fix the sliding door track unless an additional booking was created.',
+        timestamp: '17-APR-2025 · 18:15 IST',
+      },
+    ],
     customerStatement:
       'I believed basic carpentry booking covers general wood adjustment. The artisan refused to fix the sliding door track unless an additional booking was created.',
     workerStatement:

@@ -72,6 +72,14 @@ export interface BookingRecord {
   coopFee: number;
 }
 
+export interface DisputeMessage {
+  id: string;
+  senderRole: 'customer' | 'worker' | 'admin';
+  senderName: string;
+  message: string;
+  timestamp: string;
+}
+
 export interface DisputeRecord {
   id: string;
   refNumber: string;
@@ -80,18 +88,27 @@ export interface DisputeRecord {
   complainantName: string;
   respondentName: string;
   trade: string;
-  category: 'billing' | 'service_quality' | 'scope_incomplete' | 'delay' | 'damage';
+  category: 'billing' | 'service_quality' | 'scope_incomplete' | 'delay' | 'damage' | string;
   summary: string;
   escrowAmount: number;
   severity: 'high' | 'medium' | 'low';
   lodgedDate: string;
   status: 'open' | 'under_mediation' | 'resolved';
-  customerStatement: string;
-  workerStatement: string;
-  evidenceNotes: string;
   resolutionDecision?: string;
   resolvedAt?: string;
   resolvedBy?: string;
+  messages: DisputeMessage[];
+  bookingId?: string;
+  workerId?: string;
+  customerId?: string;
+  customerPhone?: string;
+  hasWorkerUnreadUpdate?: boolean;
+  hasCustomerUnreadUpdate?: boolean;
+  createdAt?: any;
+  updatedAt?: any;
+  customerStatement?: string;
+  workerStatement?: string;
+  evidenceNotes?: string;
 }
 
 export interface PayoutRecord {
