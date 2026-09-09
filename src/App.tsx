@@ -37,7 +37,11 @@ import {
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from './lib/firebase';
 import { subscribeToBookings, updateBookingStatus } from './lib/bookingsService';
-import { subscribeToWorkers, mapWorkerToVerification } from './lib/workersService';
+import {
+  subscribeToWorkers,
+  mapWorkerToVerification,
+  updateWorkerStatusInFirestore,
+} from './lib/workersService';
 
 export default function App() {
   // Authentication State with safe defaults
@@ -61,18 +65,38 @@ export default function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [globalSearch, setGlobalSearch] = useState('');
 
+  // Helper to check if a worker is already an active directory worker
+  const isAlreadyActiveWorker = (id: string, name: string) => {
+    const normId = id.toLowerCase();
+    const normName = name.toLowerCase();
+    return (
+      normId === 'worker-1' ||
+      normId === 'worker-plumbing' ||
+      normId === 'worker-5' ||
+      normId === 'worker-painting' ||
+      normName.includes('ramesh chand') ||
+      normName.includes('subir kumar')
+    );
+  };
+
   // Persisted Domain Entities with safe array checks
   const [verifications, setVerifications] = useState<WorkerVerification[]>(() => {
     try {
       const saved = localStorage.getItem('sahyog_verifications');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.filter(
+            (v: WorkerVerification) => !isAlreadyActiveWorker(v.id, v.name)
+          );
+        }
       }
     } catch (e) {
       // fallback
     }
-    return initialVerifications;
+    return initialVerifications.filter(
+      (v) => !isAlreadyActiveWorker(v.id, v.name)
+    );
   });
 
   const [liveWorkersCount, setLiveWorkersCount] = useState<number>(0);
@@ -91,7 +115,11 @@ export default function App() {
     const unsubscribe = subscribeToWorkers(
       (liveWorkers) => {
         if (liveWorkers && liveWorkers.length > 0) {
-          const mapped = liveWorkers.map((w, idx) => mapWorkerToVerification(w, idx));
+          // Fully verified workers in the directory are excluded from the pending verification queue
+          const filteredWorkers = liveWorkers.filter(
+            (w) => !isAlreadyActiveWorker(w.id, w.name)
+          );
+          const mapped = filteredWorkers.map((w, idx) => mapWorkerToVerification(w, idx));
           setVerifications(mapped);
         }
       },
@@ -173,36 +201,61 @@ export default function App() {
   };
 
   // Action: Approve Worker
-  const handleApproveWorker = (worker: WorkerVerification) => {
+  const handleApproveWorker = async (worker: WorkerVerification) => {
+    // Optimistic UI update
     setVerifications((prev) =>
-      prev.map((w) => (w.id === worker.id ? { ...w, status: 'approved' as const } : w))
+      prev.map((w) => (w.id === worker.id ? { ...w, status: 'approved' as const, rejectionReason: undefined } : w))
     );
     showToast(`Approved ${worker.name} (${worker.regId}) · Co-op Card Issued`);
+    try {
+      await updateWorkerStatusInFirestore(worker.id, 'approved');
+    } catch (error) {
+      console.error('Failed to update worker approval in Firestore:', error);
+      showToast(`Warning: Failed to persist approval to Firestore for ${worker.name}`);
+    }
   };
 
   // Action: Reject Worker
-  const handleRejectWorker = (worker: WorkerVerification, reason?: string) => {
+  const handleRejectWorker = async (worker: WorkerVerification, reason?: string) => {
+    const finalReason = reason || 'Statutory registration criteria not met';
+    // Optimistic UI update
     setVerifications((prev) =>
-      prev.map((w) => (w.id === worker.id ? { ...w, status: 'rejected' as const } : w))
+      prev.map((w) => (w.id === worker.id ? { ...w, status: 'rejected' as const, rejectionReason: finalReason } : w))
     );
-    showToast(`Rejected ${worker.name} · Statutory ground recorded in audit ledger`);
+    showToast(`Rejected ${worker.name} · ${finalReason}`);
+    try {
+      await updateWorkerStatusInFirestore(worker.id, 'rejected', finalReason);
+    } catch (error) {
+      console.error('Failed to update worker rejection in Firestore:', error);
+      showToast(`Warning: Failed to persist rejection to Firestore for ${worker.name}`);
+    }
   };
 
   // Action: Batch Approve Clear
-  const handleBatchApproveClear = () => {
+  const handleBatchApproveClear = async () => {
+    const clearPendingWorkers = verifications.filter(
+      (w) => w.status === 'pending' && w.policeRecordStatus === 'clear'
+    );
     setVerifications((prev) =>
       prev.map((w) =>
         w.status === 'pending' && w.policeRecordStatus === 'clear'
-          ? { ...w, status: 'approved' as const }
+          ? { ...w, status: 'approved' as const, rejectionReason: undefined }
           : w
       )
     );
-    showToast(`Batch approved all clear police dossiers · Co-op credentials issued`);
+    showToast(`Batch approved ${clearPendingWorkers.length} clear dossiers · Co-op credentials issued`);
+    try {
+      await Promise.all(
+        clearPendingWorkers.map((w) => updateWorkerStatusInFirestore(w.id, 'approved'))
+      );
+    } catch (error) {
+      console.error('Failed to batch approve clear workers in Firestore:', error);
+    }
   };
 
   // Action: Reset Verifications
   const handleResetVerifications = () => {
-    setVerifications(initialVerifications);
+    setVerifications(initialVerifications.filter((v) => !isAlreadyActiveWorker(v.id, v.name)));
     showToast('Reset verification queue to standard demo records');
   };
 

@@ -39,6 +39,28 @@ export const VerificationQueueView: React.FC<VerificationQueueViewProps> = ({
   const [filterStatus, setFilterStatus] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [rejectingWorker, setRejectingWorker] = useState<WorkerVerification | null>(null);
+  const [rejectionReasonText, setRejectionReasonText] = useState('Skill certificate does not meet Level 2 guild standard');
+
+  const standardRejectionReasons = [
+    'Skill certificate does not meet Level 2 guild standard',
+    'DigiLocker biometric hash signature mismatch',
+    'Adverse law enforcement / police verification record',
+    'Bank account beneficiary name mismatch with Aadhaar',
+    'Incomplete proof of residential trade experience',
+    'Invalid or unverified contact details',
+  ];
+
+  const handleOpenRejectModal = (worker: WorkerVerification) => {
+    setRejectingWorker(worker);
+    setRejectionReasonText('Skill certificate does not meet Level 2 guild standard');
+  };
+
+  const handleConfirmRejection = () => {
+    if (!rejectingWorker) return;
+    onReject(rejectingWorker, rejectionReasonText.trim() || 'Statutory registration criteria not met');
+    setRejectingWorker(null);
+  };
 
   const trades = [
     'all',
@@ -312,9 +334,16 @@ export const VerificationQueueView: React.FC<VerificationQueueViewProps> = ({
                           </span>
                         )}
                         {isRejected && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#93000A] bg-[#FFDAD6] px-2 py-0.5 rounded">
-                            Rejected
-                          </span>
+                          <div>
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#93000A] bg-[#FFDAD6] px-2 py-0.5 rounded">
+                              Rejected
+                            </span>
+                            {worker.rejectionReason && (
+                              <p className="text-[10px] text-[#93000A] mt-0.5 truncate max-w-[150px]" title={worker.rejectionReason}>
+                                {worker.rejectionReason}
+                              </p>
+                            )}
+                          </div>
                         )}
                       </td>
 
@@ -336,9 +365,9 @@ export const VerificationQueueView: React.FC<VerificationQueueViewProps> = ({
                                 Inspect
                               </button>
                               <button
-                                onClick={() => onReject(worker)}
+                                onClick={() => handleOpenRejectModal(worker)}
                                 className="px-1.5 py-1 text-[#6B7280] hover:text-[#B91C1C] text-[11px] transition rounded"
-                                title="Reject Application"
+                                title="Reject Application with reason"
                               >
                                 <X className="w-4 h-4" />
                               </button>
@@ -384,6 +413,100 @@ export const VerificationQueueView: React.FC<VerificationQueueViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Reject Confirmation & Reason Modal */}
+      {rejectingWorker && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
+          <div className="bg-white rounded-[12px] border border-[#E7E5E1] shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-[#E7E5E1] bg-[#FAFAF9] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full bg-red-100 flex items-center justify-center text-[#93000A]">
+                  <XCircle className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-[14px] font-bold text-[#14181F]">
+                    Reject Worker Application
+                  </h3>
+                  <p className="text-[11px] text-[#6B7280]">
+                    {rejectingWorker.name} ({rejectingWorker.regId}) · {rejectingWorker.trade}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setRejectingWorker(null)}
+                className="p-1 text-[#6B7280] hover:text-[#14181F] rounded"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 space-y-3.5 text-[13px]">
+              <p className="text-[#414944] text-[12px]">
+                The rejection reason will be stored on the artisan record and shown in the Worker application rejection banner:
+              </p>
+
+              {/* Presets */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider block">
+                  Quick Grounds:
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {standardRejectionReasons.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setRejectionReasonText(preset)}
+                      className={`text-[11px] px-2 py-1 rounded-[6px] border text-left transition ${
+                        rejectionReasonText === preset
+                          ? 'bg-[#FFDAD6] border-[#93000A]/30 text-[#93000A] font-medium'
+                          : 'bg-[#FAFAF9] border-[#E7E5E1] text-[#414944] hover:bg-[#F1F1EF]'
+                      }`}
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Editable reason input */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider block">
+                  Rejection Reason (rejectionReason field):
+                </label>
+                <textarea
+                  value={rejectionReasonText}
+                  onChange={(e) => setRejectionReasonText(e.target.value)}
+                  rows={3}
+                  className="w-full bg-[#FAFAF9] border border-[#E7E5E1] rounded-[8px] p-2.5 text-[12px] text-[#14181F] focus:outline-none focus:ring-2 focus:ring-[#93000A]/50 focus:bg-white resize-none"
+                  placeholder="Enter rejection reason to show to worker..."
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-3.5 bg-[#FAFAF9] border-t border-[#E7E5E1] flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setRejectingWorker(null)}
+                className="px-3 py-1.5 bg-white border border-[#E7E5E1] text-[#414944] hover:bg-[#F5F5F4] text-[12px] font-medium rounded-[8px] transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmRejection}
+                disabled={!rejectionReasonText.trim()}
+                className="px-3.5 py-1.5 bg-[#93000A] hover:bg-red-800 disabled:opacity-50 text-white text-[12px] font-medium rounded-[8px] transition flex items-center gap-1.5"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Confirm Rejection</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -2,6 +2,7 @@ import {
   collection,
   doc,
   onSnapshot,
+  setDoc,
   updateDoc,
   serverTimestamp,
   QuerySnapshot,
@@ -33,6 +34,9 @@ export interface FirestoreWorker {
   memberSinceYear?: number;
   isOnline?: boolean;
   status?: 'pending' | 'approved' | 'rejected' | 'held';
+  rejectionReason?: string;
+  phone?: string;
+  submissionDate?: string;
   reviews?: Array<{
     id: string;
     customerName: string;
@@ -114,22 +118,23 @@ export function mapWorkerToVerification(
 
   const regId = w.registrationNumber || `COOP-${w.id.toUpperCase()}`;
   const cert1 = w.certifications?.[0] || 'National Co-operative Skill Registry L4';
-  const cert2 = w.certifications?.[1] || `${w.primaryServiceName} Master Trade Certification`;
-  const ratingScore = Math.round((w.rating || 4.9) * 20); // e.g. 4.95 -> 99
+  const cert2 = w.certifications?.[1] || `${w.primaryServiceName || 'General Trade'} Master Trade Certification`;
+  const ratingScore = Math.round((w.rating !== undefined ? w.rating : 4.9) * 20); // e.g. 4.95 -> 99
 
   const currentYear = 2026;
   const memberSince = w.memberSinceYear || 2020;
-  const yearsExperience = Math.max(3, currentYear - memberSince + 5);
+  const yearsExperience = Math.max(2, currentYear - memberSince + 5);
 
   const phoneSuffix = String(1000 + (index * 137) % 9000).padStart(4, '0');
-  const phone = `+91 98101 ${phoneSuffix}`;
+  const phone = w.phone || `+91 98101 ${phoneSuffix}`;
   const photoUrl = getWorkerPhotoUrl(w.id, w.primaryServiceName, w.photoUrl);
+  const submissionDate = w.submissionDate || `Member since ${memberSince} · Active Co-op Guild`;
 
   return {
     id: w.id,
     regId,
-    name: w.name,
-    trade: w.primaryServiceName,
+    name: w.name || 'Artisan Applicant',
+    trade: w.primaryServiceName || 'General Service',
     branch: w.federationName || 'Delhi Shramik Federation',
     aadhaarStatus: 'verified',
     aadhaarXmlHash: `SHA256: UIDAI-COOP-VERIFIED-${w.id.toUpperCase()}`,
@@ -144,9 +149,10 @@ export function mapWorkerToVerification(
     bankAccountMasked: `••••••••${regId.replace(/\D/g, '').slice(-4) || String(1020 + index * 111).slice(-4)}`,
     ifsc: 'DSCB0001004',
     phone,
-    submissionDate: `Member since ${memberSince} · Active Co-op Guild`,
+    submissionDate,
     status,
-    inspectionNotes: w.summary || `${w.primaryServiceName} specialist with verified background and active insurance.`,
+    rejectionReason: w.rejectionReason,
+    inspectionNotes: w.summary || `${w.primaryServiceName || 'Trade'} specialist with verified background and active insurance.`,
     photoUrl,
   };
 }
@@ -192,15 +198,19 @@ export function subscribeToWorkers(
           memberSinceYear: typeof data.memberSinceYear === 'number' ? data.memberSinceYear : 2020,
           isOnline: typeof data.isOnline === 'boolean' ? data.isOnline : undefined,
           status: data.status,
+          rejectionReason: data.rejectionReason,
+          phone: data.phone,
+          submissionDate: data.submissionDate || (data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : undefined),
           reviews: Array.isArray(data.reviews) ? data.reviews : [],
         };
       });
 
-      // Sort by natural worker id (worker-1, worker-2, ..., worker-10)
+      // Sort by natural worker id (worker-1, worker-2, ..., worker-10) or created docs
       records.sort((a, b) => {
         const numA = parseInt(a.id.replace(/\D/g, '') || '0', 10);
         const numB = parseInt(b.id.replace(/\D/g, '') || '0', 10);
-        return numA - numB;
+        if (numA && numB) return numA - numB;
+        return a.id.localeCompare(b.id);
       });
 
       onUpdate(records);
@@ -219,11 +229,21 @@ export function subscribeToWorkers(
  */
 export async function updateWorkerStatusInFirestore(
   workerId: string,
-  newStatus: 'pending' | 'approved' | 'rejected' | 'held'
+  newStatus: 'pending' | 'approved' | 'rejected' | 'held',
+  rejectionReason?: string
 ): Promise<void> {
   const workerRef = doc(db, 'workers', workerId);
-  await updateDoc(workerRef, {
+  const updatePayload: Record<string, any> = {
     status: newStatus,
     updatedAt: serverTimestamp(),
-  });
+  };
+
+  if (newStatus === 'rejected') {
+    updatePayload.rejectionReason = rejectionReason || 'Statutory registration criteria not met';
+  } else if (newStatus === 'approved') {
+    updatePayload.rejectionReason = null;
+  }
+
+  // Use setDoc with merge to ensure safe update even if document fields vary
+  await setDoc(workerRef, updatePayload, { merge: true });
 }

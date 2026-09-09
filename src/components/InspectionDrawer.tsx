@@ -202,35 +202,48 @@ export const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
           {/* Reject Reason Selection UI if rejecting */}
           {rejecting && (
-            <div className="p-3 border border-[#B91C1C]/40 bg-[#FFDAD6]/30 rounded-[8px] space-y-2">
-              <span className="text-[11px] font-bold text-[#93000A]">
-                Specify Statutory Rejection Ground:
-              </span>
+            <div className="p-3.5 border border-[#B91C1C]/40 bg-[#FFDAD6]/30 rounded-[8px] space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-[#93000A]">
+                  Specify Statutory Rejection Ground:
+                </span>
+              </div>
               <select
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 className="w-full bg-white border border-[#E7E5E1] rounded-[6px] p-1.5 text-[12px] text-[#14181F] focus:outline-none focus:ring-2 focus:ring-[#B91C1C]"
               >
-                <option>Skill certificate does not meet Level 2 guild standard</option>
-                <option>DigiLocker biometric hash signature mismatch</option>
-                <option>Adverse law enforcement / police verification record</option>
-                <option>Bank account beneficiary name mismatch with Aadhaar</option>
-                <option>Incomplete proof of residential trade experience</option>
+                <option value="Skill certificate does not meet Level 2 guild standard">Skill certificate does not meet Level 2 guild standard</option>
+                <option value="DigiLocker biometric hash signature mismatch">DigiLocker biometric hash signature mismatch</option>
+                <option value="Adverse law enforcement / police verification record">Adverse law enforcement / police verification record</option>
+                <option value="Bank account beneficiary name mismatch with Aadhaar">Bank account beneficiary name mismatch with Aadhaar</option>
+                <option value="Incomplete proof of residential trade experience">Incomplete proof of residential trade experience</option>
+                <option value="Invalid or unverified contact details">Invalid or unverified contact details</option>
               </select>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                rows={2}
+                placeholder="Detailed reason shown in Worker app banner..."
+                className="w-full bg-white border border-[#E7E5E1] rounded-[6px] p-2 text-[12px] text-[#14181F] focus:outline-none focus:ring-2 focus:ring-[#B91C1C] resize-none"
+              />
               <div className="flex items-center gap-2 pt-1">
                 <button
+                  type="button"
                   onClick={() => {
-                    onReject(worker, rejectReason);
+                    onReject(worker, rejectReason.trim() || 'Statutory registration criteria not met');
                     setRejecting(false);
                     onClose();
                   }}
-                  className="px-3 py-1.5 bg-[#B91C1C] text-white text-[12px] font-medium rounded-[6px] hover:bg-red-800 transition"
+                  disabled={!rejectReason.trim()}
+                  className="px-3 py-1.5 bg-[#B91C1C] text-white text-[12px] font-medium rounded-[6px] hover:bg-red-800 disabled:opacity-50 transition"
                 >
                   Confirm Rejection
                 </button>
                 <button
+                  type="button"
                   onClick={() => setRejecting(false)}
-                  className="px-2.5 py-1.5 bg-white border border-[#E7E5E1] text-[12px] text-[#14181F] rounded-[6px]"
+                  className="px-2.5 py-1.5 bg-white border border-[#E7E5E1] text-[12px] text-[#14181F] rounded-[6px] hover:bg-[#F5F5F4]"
                 >
                   Cancel
                 </button>
