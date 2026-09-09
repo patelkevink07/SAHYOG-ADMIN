@@ -7,7 +7,6 @@
 export type NavigationSection =
   | 'dashboard'
   | 'verification'
-  | 'workforce-map'
   | 'bookings'
   | 'disputes'
   | 'payouts'
@@ -59,7 +58,7 @@ export interface BookingRecord {
   workerId: string;
   workerName: string;
   trade: string;
-  zone: string;
+  zone?: string;
   address: string;
   category: string;
   status: 'active' | 'completed' | 'assigned' | 'flagged' | 'cancelled';

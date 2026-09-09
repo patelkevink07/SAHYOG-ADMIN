@@ -43,7 +43,7 @@ export const BookingsView: React.FC<BookingsViewProps> = ({
         b.customerName.toLowerCase().includes(q) ||
         b.workerName.toLowerCase().includes(q) ||
         b.category.toLowerCase().includes(q) ||
-        b.zone.toLowerCase().includes(q)
+        b.address.toLowerCase().includes(q)
       );
     }
     return true;
@@ -256,7 +256,6 @@ export const BookingsView: React.FC<BookingsViewProps> = ({
                 <div className="text-[12px] text-[#6B7280] space-y-1">
                   <div>Customer: <strong className="text-[#14181F]">{selectedBooking.customerName}</strong> ({selectedBooking.customerPhone})</div>
                   <div>Address: <span className="text-[#14181F]">{selectedBooking.address}</span></div>
-                  <div>Sector Zone: <span className="text-[#14181F]">{selectedBooking.zone}</span></div>
                 </div>
               </div>
 

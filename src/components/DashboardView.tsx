@@ -6,8 +6,6 @@
 import React, { useState } from 'react';
 import {
   ShieldCheck,
-  Radio,
-  CheckCircle2,
   TrendingUp,
   ArrowRight,
   Sparkles,
@@ -15,17 +13,16 @@ import {
   X,
   Clock,
   Send,
+  CheckCircle2,
 } from 'lucide-react';
 import {
   WorkerVerification,
-  ZoneAllocation,
   ForecastDay,
   NavigationSection,
 } from '../types';
 
 interface DashboardViewProps {
   verifications: WorkerVerification[];
-  zones: ZoneAllocation[];
   forecastDays: ForecastDay[];
   openDisputesCount: number;
   totalEscrowPending: number;
@@ -42,7 +39,6 @@ interface DashboardViewProps {
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   verifications,
-  zones,
   forecastDays,
   openDisputesCount,
   totalEscrowPending,
@@ -83,7 +79,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             Cooperative Operations Oversight
           </h2>
           <p className="text-[13px] text-[#6B7280] mt-0.5">
-            Central Hub Allocation & Worker Credential Validation Queue · Shift Alpha
+            Manage worker assignments and verify worker documents
           </p>
         </div>
         <div className="text-[12px] text-[#6B7280] tabular-nums">
@@ -191,7 +187,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   Priority Worker Verification Queue
                 </h3>
                 <p className="text-[12px] text-[#6B7280]">
-                  Statutory verification of artisan credentials under Delhi Co-operative Societies Act
+                  Check and approve worker documents and skills
                 </p>
               </div>
             </div>
@@ -347,66 +343,42 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </section>
 
-        {/* Right Column: Zone Dispatch Coverage & AI Demand Forecast (4 Cols) */}
+        {/* Right Column: Operational Standards & AI Demand Forecast (4 Cols) */}
         <div className="lg:col-span-4 flex flex-col gap-6">
-          {/* Card 1: Zone Dispatch Coverage */}
+          {/* Card 1: Operational Standards */}
           <div className="bg-white border border-[#E7E5E1] rounded-[10px] p-4 flex flex-col">
             <div className="flex items-center justify-between pb-3 border-b border-[#E7E5E1]">
               <div className="flex items-center gap-2">
-                <Radio className="w-4 h-4 text-[#1F4D3D]" />
-                <h3 className="text-[14px] font-bold text-[#14181F]">Zone Dispatch Coverage</h3>
+                <ShieldCheck className="w-4 h-4 text-[#1F4D3D]" />
+                <h3 className="text-[14px] font-bold text-[#14181F]">Verification Standards</h3>
               </div>
               <span className="text-[11px] text-[#1F4D3D] font-medium bg-[#BCEDD7]/40 px-2 py-0.5 rounded">
-                Real-Time
+                Active Protocol
               </span>
             </div>
 
-            {/* Zone Density Meters */}
-            <div className="mt-4 space-y-3">
-              {zones.map((zone) => (
-                <div key={zone.id}>
-                  <div className="flex justify-between text-[12px] mb-1">
-                    <span className="font-medium text-[#14181F] truncate pr-2">{zone.name}</span>
-                    <span
-                      className={`font-semibold tabular-nums text-right flex-shrink-0 ${
-                        zone.deficitStatus === 'moderate_deficit'
-                          ? 'text-[#755B00]'
-                          : 'text-[#14181F]'
-                      }`}
-                    >
-                      {zone.coveragePercentage}% {zone.deficitStatus === 'moderate_deficit' ? '(Moderate Deficit)' : 'coverage'}
-                    </span>
-                  </div>
-                  <div className="w-full bg-[#E5E8F2] h-1.5 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        zone.deficitStatus === 'moderate_deficit'
-                          ? 'bg-[#C9A227]'
-                          : 'bg-[#1F4D3D]'
-                      }`}
-                      style={{ width: `${zone.coveragePercentage}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-[10px] text-[#6B7280] mt-0.5">
-                    <span className="tabular-nums">{zone.onDuty} on duty</span>
-                    <span className="tabular-nums">Cap: {zone.totalCapacity} workers</span>
-                  </div>
+            <div className="mt-4 space-y-2.5 text-[12px]">
+              <div className="flex items-start gap-2 p-2.5 rounded-[8px] bg-[#FAFAF9] border border-[#E7E5E1]">
+                <span className="text-[#1F4D3D] font-bold mt-0.5">✓</span>
+                <div>
+                  <span className="font-semibold text-[#14181F]">Aadhaar XML Biometric Hash</span>
+                  <p className="text-[#6B7280] text-[11px] mt-0.5">Direct validation via UIDAI DigiLocker gateway</p>
                 </div>
-              ))}
-            </div>
-
-            {/* Kiosks Footnote */}
-            <div className="mt-4 p-2.5 bg-[#FAFAF9] border border-[#E7E5E1] rounded-[8px] flex items-center justify-between text-[11px]">
-              <div className="flex items-center gap-1.5 text-[#6B7280]">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#1F4D3D]" />
-                <span>All 4 Cooperative Depot kiosks online</span>
               </div>
-              <button
-                onClick={() => onNavigate('workforce-map')}
-                className="font-medium text-[#1F4D3D] hover:underline focus:outline-none"
-              >
-                Full Map →
-              </button>
+              <div className="flex items-start gap-2 p-2.5 rounded-[8px] bg-[#FAFAF9] border border-[#E7E5E1]">
+                <span className="text-[#1F4D3D] font-bold mt-0.5">✓</span>
+                <div>
+                  <span className="font-semibold text-[#14181F]">Guild Skill Certification</span>
+                  <p className="text-[#6B7280] text-[11px] mt-0.5">Level 2+ trade credentials required for active assignment</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2 p-2.5 rounded-[8px] bg-[#FAFAF9] border border-[#E7E5E1]">
+                <span className="text-[#1F4D3D] font-bold mt-0.5">✓</span>
+                <div>
+                  <span className="font-semibold text-[#14181F]">Police Record Verification</span>
+                  <p className="text-[#6B7280] text-[11px] mt-0.5">Official CCTNS dossier check prior to customer dispatch</p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -426,7 +398,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {/* Forecast Projection Header */}
               <div className="mt-3">
                 <div className="flex justify-between items-baseline mb-2">
-                  <span className="text-[12px] text-[#6B7280]">West & Central Projection (72 hrs)</span>
+                  <span className="text-[12px] text-[#6B7280]">72-Hour Demand Projection</span>
                   <span className="text-[12px] font-semibold text-[#B91C1C] tabular-nums">
                     +34% HVAC / Electrical
                   </span>
@@ -468,7 +440,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {/* Plain Language Briefing Note */}
               <p className="mt-3 text-[12px] text-[#414944] leading-relaxed">
                 <strong className="text-[#14181F]">Briefing:</strong> Expected surge in electrical & cooling
-                service requests (+34%) in West Delhi sectors over the next 72 hours due to
+                service requests (+34%) across city sectors over the next 72 hours due to
                 forecasted heatwave. Recommend pre-notifying off-shift cooperative artisans.
               </p>
             </div>

@@ -8,7 +8,6 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { DashboardView } from './components/DashboardView';
 import { VerificationQueueView } from './components/VerificationQueueView';
-import { WorkforceMapView } from './components/WorkforceMapView';
 import { BookingsView } from './components/BookingsView';
 import { DisputesView } from './components/DisputesView';
 import { PayoutsView } from './components/PayoutsView';
@@ -22,7 +21,6 @@ import {
   BookingRecord,
   DisputeRecord,
   PayoutRecord,
-  ZoneAllocation,
   ForecastDay,
   NavigationSection,
   OfficerProfile,
@@ -32,7 +30,6 @@ import {
   initialVerifications,
   initialDisputes,
   initialPayouts,
-  initialZones,
   initialForecastDays,
   defaultOfficer,
 } from './data/initialData';
@@ -56,10 +53,9 @@ export default function App() {
     return defaultOfficer; // Default logged in for immediate review, with logout available
   });
 
-  // Navigation & Zone State
+  // Navigation State
   const [currentSection, setCurrentSection] = useState<NavigationSection>('dashboard');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [selectedZone, setSelectedZone] = useState('All Federation Zones');
   const [globalSearch, setGlobalSearch] = useState('');
 
   // Persisted Domain Entities with safe array checks
@@ -134,19 +130,6 @@ export default function App() {
     return initialPayouts;
   });
 
-  const [zones, setZones] = useState<ZoneAllocation[]>(() => {
-    try {
-      const saved = localStorage.getItem('sahyog_zones');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {
-      // fallback
-    }
-    return initialZones;
-  });
-
   const [forecastDays] = useState<ForecastDay[]>(initialForecastDays);
 
   // Active Drawers & Modals
@@ -167,10 +150,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('sahyog_payouts', JSON.stringify(payouts));
   }, [payouts]);
-
-  useEffect(() => {
-    localStorage.setItem('sahyog_zones', JSON.stringify(zones));
-  }, [zones]);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -211,38 +190,6 @@ export default function App() {
   const handleResetVerifications = () => {
     setVerifications(initialVerifications);
     showToast('Reset verification queue to standard demo records');
-  };
-
-  // Action: Reallocate Workforce
-  const handleReallocate = (fromZoneId: string, toZoneId: string, count: number) => {
-    setZones((prev) =>
-      prev.map((z) => {
-        if (z.id === fromZoneId) {
-          const newStandby = Math.max(0, z.standby - count);
-          const newDuty = Math.max(0, z.onDuty - count);
-          const coverage = Math.round((newDuty / z.totalCapacity) * 100);
-          return {
-            ...z,
-            standby: newStandby,
-            onDuty: newDuty,
-            coveragePercentage: coverage,
-          };
-        }
-        if (z.id === toZoneId) {
-          const newStandby = z.standby + count;
-          const newDuty = z.onDuty + count;
-          const coverage = Math.round((newDuty / z.totalCapacity) * 100);
-          return {
-            ...z,
-            standby: newStandby,
-            onDuty: newDuty,
-            coveragePercentage: coverage,
-            deficitStatus: coverage >= 80 ? 'adequate' : 'moderate_deficit',
-          };
-        }
-        return z;
-      })
-    );
   };
 
   // Action: Update Booking Status with Firestore persistence (reverse mapping)
@@ -347,15 +294,6 @@ export default function App() {
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
         onLogout={handleLogout}
-        onEmergencyClick={() => {
-          showToast('Emergency escalation alert dispatched to Zonal Federation Director');
-        }}
-        onSettingsClick={() => {
-          showToast('Cooperative Federation Settings: Delhi NCT Chapter (NCCT Reg. F-8842)');
-        }}
-        onAuditLogsClick={() => {
-          showToast('Statutory Audit Ledger: 412 operations logged today in accordance with 2003 Act');
-        }}
       />
 
       {/* Main Workspace Column */}
@@ -364,16 +302,11 @@ export default function App() {
         <Header
           officer={officer}
           currentSection={currentSection}
-          selectedZone={selectedZone}
-          onSelectZone={setSelectedZone}
           searchQuery={globalSearch}
           onSearchChange={setGlobalSearch}
           onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
           isSidebarCollapsed={isSidebarCollapsed}
           onLogout={handleLogout}
-          onExportCsv={() => {
-            showToast('Exported active cooperative registers to CSV');
-          }}
         />
 
         {/* Primary Operational Workspace Container */}
@@ -386,7 +319,6 @@ export default function App() {
             {currentSection === 'dashboard' && (
               <DashboardView
                 verifications={verifications}
-                zones={zones}
                 forecastDays={forecastDays}
                 openDisputesCount={openDisputesCount}
                 totalEscrowPending={totalEscrowPending}
@@ -410,14 +342,6 @@ export default function App() {
                 onInspect={(w) => setActiveInspectorWorker(w)}
                 onBatchApproveClear={handleBatchApproveClear}
                 onResetVerifications={handleResetVerifications}
-              />
-            )}
-
-            {currentSection === 'workforce-map' && (
-              <WorkforceMapView
-                zones={zones}
-                workers={verifications}
-                onReallocate={handleReallocate}
               />
             )}
 

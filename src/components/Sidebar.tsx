@@ -7,14 +7,10 @@ import React from 'react';
 import {
   LayoutDashboard,
   ShieldCheck,
-  MapPin,
   Calendar,
   Scale,
   WalletCards,
   TrendingUp,
-  AlertTriangle,
-  Settings,
-  FileText,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -30,9 +26,6 @@ export interface SidebarProps {
   pendingPayoutsCount?: number;
   currentOfficer?: OfficerUser | null;
   officer?: OfficerUser | null;
-  onEmergencyClick?: () => void;
-  onSettingsClick?: () => void;
-  onAuditLogsClick?: () => void;
   onSignOut?: () => void;
   onLogout?: () => void;
   isCollapsed: boolean;
@@ -47,9 +40,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   pendingPayoutsCount = 0,
   currentOfficer,
   officer,
-  onEmergencyClick,
-  onSettingsClick,
-  onAuditLogsClick,
   onSignOut,
   onLogout,
   isCollapsed,
@@ -80,11 +70,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: ShieldCheck,
       count: pendingVerificationsCount,
       countClass: 'bg-[#E5E8F2] text-[#14181F]',
-    },
-    {
-      id: 'workforce-map' as NavigationSection,
-      label: 'Workforce Map',
-      icon: MapPin,
     },
     {
       id: 'bookings' as NavigationSection,
@@ -216,45 +201,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Bottom Actions & Staff Profile */}
       <div className="p-3 border-t border-[#E7E5E1] flex flex-col gap-2">
-        {/* Emergency Escalation Button */}
-        <button
-          onClick={onEmergencyClick}
-          title={isCollapsed ? 'Emergency Escalation' : undefined}
-          className={`w-full flex items-center justify-center gap-2 py-2 ${
-            isCollapsed ? 'px-2' : 'px-3'
-          } rounded-[8px] bg-[#B91C1C] hover:bg-[#991B1B] text-white text-[12px] font-semibold tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-red-700`}
-        >
-          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-          {!isCollapsed && <span>Emergency Escalation</span>}
-        </button>
-
-        {/* Secondary Navigation Links */}
-        <div className="space-y-0.5 pt-1">
-          <button
-            onClick={onSettingsClick}
-            title={isCollapsed ? 'Federation Settings' : undefined}
-            className={`w-full flex items-center ${
-              isCollapsed ? 'justify-center px-2' : 'px-3'
-            } py-1.5 rounded-[6px] text-[#6B7280] hover:text-[#14181F] hover:bg-[#F1F1EF] text-[12px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#1F4D3D]`}
-          >
-            <Settings className="w-4 h-4 flex-shrink-0" />
-            {!isCollapsed && <span className="ml-2">Federation Settings</span>}
-          </button>
-
-          <button
-            onClick={onAuditLogsClick}
-            title={isCollapsed ? 'Audit Logs' : undefined}
-            className={`w-full flex items-center ${
-              isCollapsed ? 'justify-center px-2' : 'px-3'
-            } py-1.5 rounded-[6px] text-[#6B7280] hover:text-[#14181F] hover:bg-[#F1F1EF] text-[12px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#1F4D3D]`}
-          >
-            <FileText className="w-4 h-4 flex-shrink-0" />
-            {!isCollapsed && <span className="ml-2">Audit Logs</span>}
-          </button>
-        </div>
-
         {/* Staff Profile Card & Logout */}
-        <div className="mt-1 pt-2 border-t border-[#E7E5E1] flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5 overflow-hidden">
             <div className="h-8 w-8 rounded-full bg-[#1F4D3D] text-white flex items-center justify-center font-semibold text-[12px] flex-shrink-0">
               {officerInitials}
